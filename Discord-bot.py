@@ -7,6 +7,7 @@ import random
 from dotenv import load_dotenv
 import sys
 import re
+import time
 
 # ✅ CHARGER .env
 load_dotenv()
@@ -19,7 +20,7 @@ if not TOKEN:
 # ✅ IDs
 ADMIN_ROLE_ID = 1469775933933224172
 
-# ✅ INTENTS (COMME TON BOT)
+# ✅ INTENTS
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
@@ -33,7 +34,7 @@ async def on_ready():
     print(f"✅ BOT CONNECTÉ : {bot.user}")
     print(f"📊 SERVEURS : {len(bot.guilds)}")
     print(f"{'='*60}\n")
-    print("🎮 COMMANDES SLASH DISPONIBLES :")
+    print("🎮 COMMANDES DISPONIBLES :")
     print("   /test - Test le bot")
     print("   /help - Affiche l'aide")
     print("   /ping - Latence du bot")
@@ -203,7 +204,10 @@ if __name__ == "__main__":
     print("\n" + "="*60)
     print("🚀 DÉMARRAGE DU BOT ZMACRO...")
     print("="*60)
-    print(f"\n💡 Les commandes / s'afficheront automatiquement")
-    print(f"   (Discord synchronise après ~1 minute)\n")
+    print(f"\n⏳ Attente avant connexion (évite le rate limit)...\n")
     
+    # ✅ ATTENDRE 5 SECONDES AVANT DE SE CONNECTER
+    time.sleep(5)
+    
+    print("📡 Connexion à Discord...\n")
     bot.run(TOKEN)
