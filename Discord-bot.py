@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import sys
 import re
 import logging
+from aiohttp import web
 
 # ✅ CONFIGURATION DU LOGGING
 logging.basicConfig(
@@ -311,12 +312,34 @@ async def end_giveaway(msg_id: int):
         logger.error(f"❌ Erreur lors de la fin du giveaway {msg_id} : {e}")
 
 
+# ✅ SERVEUR HTTP POUR RENDER (satisfait le health check)
+async def health_check(request):
+    """Endpoint pour le health check de Render"""
+    return web.Response(text="✅ Bot is running", status=200)
+
+async def start_web_server():
+    """Lance un mini serveur HTTP pour Render"""
+    app = web.Application()
+    app.router.add_get('/', health_check)
+    app.router.add_get('/health', health_check)
+    
+    port = int(os.getenv('PORT', 10000))
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, '0.0.0.0', port)
+    await site.start()
+    logger.info(f"🌐 Serveur HTTP démarré sur le port {port}")
+
+
 # ✅ LANCER LE BOT AVEC GESTION D'ERREURS
 async def main():
     """Fonction principale avec gestion des erreurs"""
     logger.info("\n" + "="*60)
     logger.info("🚀 DÉMARRAGE DU BOT ZMACRO...")
     logger.info("="*60)
+    
+    # 🌐 Lancer le serveur HTTP (pour Render)
+    asyncio.create_task(start_web_server())
     
     # ⏳ VRAI DÉLAI AVANT CONNEXION (évite rate limiting)
     delay = 5
